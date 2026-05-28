@@ -38,15 +38,14 @@
 
 ## Related Queries:
 ```kql
-// Installer name == tor-browser-windows-x86_64-portable-(version).exe
+// Installer name == tor-browser-windows-x86_64-portable-15.0.14.exe
 // Detect the installer being downloaded
 DeviceFileEvents
 | where FileName startswith "tor"
 
 // TOR Browser being silently installed
-// Take note of two spaces before the /S (I don't know why)
 DeviceProcessEvents
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe  /S"
+| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-15.0.14.exe  /S"
 | project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine
 
 // TOR Browser or service was successfully installed and is present on the disk
@@ -61,14 +60,15 @@ DeviceProcessEvents
 
 // TOR Browser or service is being used and is actively creating network connections
 DeviceNetworkEvents
-| where InitiatingProcessFileName in~ ("tor.exe", "firefox.exe")
-| where RemotePort in (9001, 9030, 9040, 9050, 9051, 9150)
-| project Timestamp, DeviceName, InitiatingProcessAccountName, InitiatingProcessFileName, RemoteIP, RemotePort, RemoteUrl
+| where InitiatingProcessFileName in ("tor.exe", "firefox.exe")
+| where RemotePort in ("9001", "9030", "9040", "9050", "9051", "9150", "443", "80")
+| project Timestamp, DeviceName,InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, InitiatingProcessFileName, InitiatingProcessFolderPath
 | order by Timestamp desc
+
 
 // User shopping list was created and, changed, or deleted
 DeviceFileEvents
-| where FileName contains "shopping-list.txt"
+| where FileName contains "Darkweb_shopping list.txt"
 ```
 
 ---
